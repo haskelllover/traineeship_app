@@ -1,0 +1,14 @@
+package com.myy803.traineeship_app.services;
+
+import org.springframework.ui.Model;
+
+public interface CommitteeService {
+    // View methods
+    String getCommitteeDashboard();
+    String listTraineeshipApplication(Model model);
+    String instructions(String studentUsername, String strategy, Model model);
+    String assignPosition(Integer positionId, String studentUsername, Model model);
+    String assignSupervisor(Integer positionId, String strategy, Model model);
+    String listAssigneeTraineeships(Model model);
+    String completeAssignedTraineeships(Integer positionId, Model model);
+}

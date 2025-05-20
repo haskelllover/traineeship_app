@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+	<title>Student Application</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Apply for Traineeship</h2>
+        <form th:action="@{/student/submit-application}" method="post">
+            <div class="alert alert-info">
+                By submitting this application, you confirm your profile is complete and accurate.
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <a th:href="@{/student/dashboard}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

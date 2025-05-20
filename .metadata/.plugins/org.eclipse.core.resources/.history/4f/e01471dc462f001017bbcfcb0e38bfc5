@@ -1,0 +1,117 @@
+package com.myy803.traineeship_app.services;
+
+import com.myy803.traineeship_app.domainmodel.Evaluation;
+import com.myy803.traineeship_app.domainmodel.EvaluationType;
+import com.myy803.traineeship_app.domainmodel.Professor;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mappers.ProfessorMapper;
+import com.myy803.traineeship_app.mappers.TraineeshipPositionMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.List;
+
+
+@Service
+@Transactional
+public class ProfessorServiceImpl implements ProfessorService {
+    
+    private final ProfessorMapper professorMapper;
+    private final TraineeshipPositionMapper positionMapper;
+
+    @Autowired
+    public ProfessorServiceImpl(ProfessorMapper professorMapper, 
+                              TraineeshipPositionMapper positionMapper) {
+        this.professorMapper = professorMapper;
+        this.positionMapper = positionMapper;
+    }
+
+    @Override
+    public String getProfessorDashboard() {
+        return "professor/dashboard";
+    }
+
+    @Override
+    public String retrieveProfile(Model model) {
+        String username = getCurrentUsername();
+        Professor professor = professorMapper.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
+        model.addAttribute("profile", professor);
+        return "professor/profile";
+    }
+
+    @Override
+    public String saveProfile(@ModelAttribute("profile") Professor professor, Model model) {
+        try {
+            if (professor.getUsername() == null || professor.getUsername().isEmpty()) {
+                throw new IllegalArgumentException("Username cannot be empty");
+            }
+            professorMapper.save(professor);
+            model.addAttribute("successMessage", "Profile updated successfully");
+            return "professor/profile";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error updating profile: " + e.getMessage());
+            return "professor/profile";
+        }
+    }
+
+    @Override
+    public String listAssigneeTraineeships(Model model) {
+        String username = getCurrentUsername();
+        List<TraineeshipPosition> positions = positionMapper.findBySupervisorUsernameAndIsAssigned(username, true);
+        model.addAttribute("positions", positions);
+        return "professor/assignees";
+    }
+
+    @Override
+    public String evaluateAssignedTraineeship(Integer positionId, Model model) {
+        try {
+            TraineeshipPosition position = positionMapper.findById(positionId)
+                .orElseThrow(() -> new IllegalArgumentException("Position not found"));
+            
+            model.addAttribute("position", position);
+            model.addAttribute("evaluation", new Evaluation());
+            return "professor/evaluation-form";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "redirect:/professor/assignees";
+        }
+    }
+
+    @Override
+    public String saveEvaluation(Integer positionId, @ModelAttribute Evaluation evaluation, Model model) {
+        try {
+            validateEvaluationScores(evaluation);
+            evaluation.setEvaluationType(EvaluationType.ProfessorEvaluation);
+            
+            TraineeshipPosition position = positionMapper.findById(positionId)
+                .orElseThrow(() -> new IllegalArgumentException("Position not found"));
+            
+            position.getEvaluations().add(evaluation);
+            positionMapper.save(position);
+            
+            model.addAttribute("successMessage", "Evaluation saved successfully");
+            return "redirect:/professor/assignees";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error saving evaluation: " + e.getMessage());
+            return "professor/evaluation-form";
+        }
+    }
+
+    private String getCurrentUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private void validateEvaluationScores(Evaluation evaluation) {
+        if (evaluation.getMotivation() < 1 || evaluation.getMotivation() > 10 ||
+            evaluation.getEfficiency() < 1 || evaluation.getEfficiency() > 10 ||
+            evaluation.getEffectiveness() < 1 || evaluation.getEffectiveness() > 10) {
+            throw new IllegalArgumentException("Evaluation scores must be between 1 and 10");
+        }
+    }
+}

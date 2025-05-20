@@ -1,0 +1,24 @@
+package com.myy803.traineeship_app.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.myy803.traineeship_app.service.ProfessorService;
+import com.myy803.traineeship_app.service.StudentService;
+
+@Controller
+@RequestMapping("/professor")
+@PreAuthorize("hasRole('PROFESSOR')")
+public class ProfessorController {
+	
+    private final ProfessorService professorService;
+    
+    @Autowired
+    public ProfessorController(ProfessorService professorService) {
+        this.professorService = professorService;
+    }
+
+
+}

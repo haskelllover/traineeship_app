@@ -1,0 +1,161 @@
+package com.myy803.traineeship_app.service;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import com.myy803.traineeship_app.domainmodel.Student;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.StudentMapper;
+import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
+
+@Service
+@Transactional
+public class StudentServiceImpl implements StudentService {
+    
+    private final StudentMapper studentMapper;
+    private final TraineeshipPositionMapper positionMapper;
+
+    @Autowired
+    public StudentServiceImpl(StudentMapper studentMapper,
+                            TraineeshipPositionMapper positionMapper) {
+        this.studentMapper = studentMapper;
+        this.positionMapper = positionMapper;
+    }
+
+    @Override
+    public String getStudentDashboard() {
+        return "student/dashboard";
+    }
+
+    @Override
+    public String retrieveProfile(Model model) {
+        String username = getCurrentUsername();
+        Student student = studentMapper.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        
+        // Add studentName as fullName to the model
+        model.addAttribute("studentName", student.getStudentName());
+        model.addAttribute("student", student);
+        return "student/profile";
+    }
+
+    @Override
+    public String saveProfile(@ModelAttribute("student") Student student, Model model) {
+        try {
+            Student existingStudent = studentMapper.findByUsername(getCurrentUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+            
+            // Update only the allowed fields
+            existingStudent.setStudentName(student.getStudentName());
+            existingStudent.setAM(student.getAM());
+            existingStudent.setAvgGrade(student.getAvgGrade());
+            existingStudent.setPreferredLocation(student.getPreferredLocation());
+            existingStudent.setInterests(student.getInterests());
+            existingStudent.setSkills(student.getSkills());
+            existingStudent.setYearOfStudies(student.getYearOfStudies());
+            existingStudent.setDepartment(student.getDepartment());
+            
+            studentMapper.save(existingStudent);
+            model.addAttribute("successMessage", "Profile updated successfully!");
+            return "student/profile";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error updating profile: " + e.getMessage());
+            return "student/profile";
+        }
+    }
+
+    @Override
+    public String initLogbook(Model model) {
+        try {
+            String username = getCurrentUsername();
+            Student student = studentMapper.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+            
+            // Ensure the student has an assigned traineeship
+            if (student.getAssignedTraineeship() == null) {
+                // Create a new empty position if none exists
+                TraineeshipPosition position = new TraineeshipPosition();
+                position.setStudent(student); // Set the relationship
+                student.setAssignedTraineeship(position);
+            }
+            
+            model.addAttribute("position", student.getAssignedTraineeship());
+            model.addAttribute("student", student);
+            
+            return "student/logbook";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error loading logbook: " + e.getMessage());
+            return "redirect:/student/dashboard"; // Redirect to dashboard on error
+        }
+    }
+
+    @Override
+    @Transactional
+    public String saveLogbook(@ModelAttribute("position") TraineeshipPosition position, Model model) {
+        try {
+            String username = getCurrentUsername();
+            Student student = studentMapper.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+            
+            // Ensure the position is connected to the student
+            position.setStudent(student);
+            positionMapper.save(position);
+            
+            // Update the student's reference
+            student.setAssignedTraineeship(position);
+            studentMapper.save(student);
+            
+            model.addAttribute("successMessage", "Logbook updated successfully");
+            return "redirect:/student/logbook"; // Use redirect to prevent duplicate submissions
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error updating logbook: " + e.getMessage());
+            return "student/logbook";
+        }
+    }
+
+    @Override
+    public String applyForTraineeship(Model model) {
+        String username = getCurrentUsername();
+        Student student = studentMapper.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        
+        model.addAttribute("student", student);
+        return "student/apply-traineeship";
+    }
+
+    @Override
+    public String submitApplication(Model model) {
+        String username = getCurrentUsername();
+        Student student = studentMapper.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        
+        student.setLookingForTraineeship(true);
+        studentMapper.save(student);
+        
+        model.addAttribute("successMessage", "Application submitted successfully!");
+        return "redirect:/student/application-status";
+    }
+
+    private String getCurrentUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @Override
+    public String getApplicationStatus(Model model) {
+        String username = getCurrentUsername();
+        Student student = studentMapper.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        
+        model.addAttribute("isLooking", student.isLookingForTraineeship());
+        model.addAttribute("position", student.getAssignedTraineeship());
+        model.addAttribute("student", student);
+        
+        return "student/application-status";
+    }
+}

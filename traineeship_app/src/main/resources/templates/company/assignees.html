@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Assigned Positions</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Assigned Traineeship Positions</h2>
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <div th:if="${positions.empty}" class="alert alert-info mt-3">
+            No assigned positions found.
+        </div>
+
+        <div th:unless="${positions.empty}" class="card mt-3">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Student</th>
+                            <th>Period</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="position : ${positions}">
+                            <td th:text="${position.title}"></td>
+                            <td th:text="${position.student != null} ? ${position.student.studentName} : 'Not assigned'"></td>
+                            <td>
+                                <span th:text="${#temporals.format(position.fromDate, 'dd/MM/yyyy')}"></span> - 
+                                <span th:text="${#temporals.format(position.toDate, 'dd/MM/yyyy')}"></span>
+                            </td>
+                            <td>
+                                <span th:if="${position.fromDate.isAfter(#temporals.createToday())}" 
+                                      class="badge bg-info">Upcoming</span>
+                                <span th:if="${!#temporals.createToday().isBefore(position.fromDate) 
+                                              && !#temporals.createToday().isAfter(position.toDate)}" 
+                                      class="badge bg-success">In Progress</span>
+                                <span th:if="${#temporals.createToday().isAfter(position.toDate)}" 
+                                      class="badge bg-secondary">Completed</span>
+                            </td>
+                            <td>
+								<a th:href="@{'/company/assignees/evaluate/' + ${position.id}}" 
+								   class="btn btn-primary btn-sm"
+								   th:if="${!#temporals.createToday().isBefore(position.fromDate)}">
+								    Evaluate
+								</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a th:href="@{/company/dashboard}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

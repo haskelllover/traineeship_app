@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Traineeship Logbook</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h3>Traineeship Logbook</h3>
+                <h5 th:if="${student?.studentName != null}" th:text="'Student: ' + ${student.studentName}"></h5>
+                <h5 th:unless="${student?.studentName != null}">Student: Unknown</h5>
+            </div>
+            <div class="card-body">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                
+                <div th:if="${position == null}" class="alert alert-warning">
+                    You don't have an assigned traineeship position yet.
+                    <a th:href="@{/student/application-status}" class="alert-link">Check your application status</a>
+                </div>
+                
+                <div th:if="${position != null}">
+                    <h5>Assigned Traineeship</h5>
+                    <p th:if="${position.companyName != null}">Company: <span th:text="${position.companyName}"></span></p>
+                    <p th:if="${position.companyLocation != null}">Location: <span th:text="${position.companyLocation}"></span></p>
+                    
+					<form th:action="@{/student/save-logbook}" th:object="${position}" method="POST">
+					    <input type="hidden" th:field="*{id}" />
+					    <input type="hidden" th:field="*{student.id}" /> <!-- Include student ID -->
+					    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Weekly Report</label>
+                            <textarea th:field="*{weeklyReport}" class="form-control" rows="5"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Achievements</label>
+                            <textarea th:field="*{achievements}" class="form-control" rows="5"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Skills Gained</label>
+                            <textarea th:field="*{skillsGained}" class="form-control" rows="3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Save Logbook</button>
+                        <a th:href="@{/student/dashboard}" class="btn btn-secondary">Back to Dashboard</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

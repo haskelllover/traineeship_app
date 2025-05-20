@@ -1,0 +1,229 @@
+package com.myy803.traineeship_app.domainmodel;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.List;
+
+@Entity
+@Table(name = "traineeship_positions")
+public class TraineeshipPosition {
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @Column(name = "title")
+    private String title;
+    
+    @Column(name = "description")
+    private String description;
+    
+    @Column(name = "from_date")
+    private LocalDate fromDate;
+    
+    @Column(name = "to_date")
+    private LocalDate toDate;
+    
+    @Column(name = "topics")
+    private String topics;
+    
+    @Column(name = "skills")
+    private String skills;
+    
+    @Column(name = "is_assigned")
+    private Boolean isAssigned;
+    
+    @Column(name = "student_logbook")
+    private String studentLogbook;
+    
+    @Column(name = "pass_fail_grade")
+    private Boolean passFailGrade;
+    
+    @OneToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
+    
+    @ManyToOne
+    @JoinColumn(name = "supervisor_id")
+    private Professor supervisor;
+    
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+    
+    @OneToMany(mappedBy = "traineeshipPosition")
+    private List<Evaluation> evaluations;
+    
+    @Column(name = "logbook_entries", columnDefinition = "TEXT")
+    private String logbookEntries;
+    
+    @Column(name = "hours_completed")
+    private int hoursCompleted;
+    
+    @Column(name = "weekly_report")
+    private String weeklyReport;
+    
+    @Column(name = "achievements")
+    private String achievements;
+    
+    @Column(name = "skills_gained")
+    private String skillsGained;
+
+    
+    //getters
+    public Integer getId() { 
+    	return id; 
+    }
+    
+    public String getTitle() { 
+    	return title; 
+    }
+    
+    public String getDescription() { 
+    	return description; 
+    }
+    
+    public LocalDate getFromDate() {
+        return fromDate;
+    }
+    
+    public LocalDate getToDate() {
+        return toDate;
+    }
+    
+    public String getTopics() { 
+    	return topics; 
+    }
+    
+    public String getSkills() { 
+    	return skills; 
+    }
+    
+    public boolean getIsAssigned() { 
+    	return isAssigned; 
+    }
+    
+    public String getStudentLogbook() { 
+    	return studentLogbook; 
+    }
+    
+    public boolean getPassFailGrade() {
+        return passFailGrade;
+    }
+    
+    public Student getStudent() {
+        return student;
+    }
+    
+    public Professor getSupervisor() {
+        return supervisor;
+    }
+    
+    public Company getCompany() {
+        return company;
+    }
+
+    public List<Evaluation> getEvaluations() {
+        return evaluations;
+    }
+    
+    public String getLogbookEntries() {
+    	return logbookEntries;
+    }
+    
+    public int getHoursCompleted() {
+    	return hoursCompleted;
+    }
+    
+    private String getWeeklyReport() {
+    	return weeklyReport;
+    }
+    
+    private String getAchievements() {
+    	return achievements;
+    }
+    
+    private String getSkillsGained() {
+    	return skillsGained;
+    }
+    
+    //setters
+    
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setFromDate(LocalDate fromDate) {
+        this.fromDate = fromDate;
+    }
+    
+    
+    public void setToDate(LocalDate toDate) {
+        this.toDate = toDate;
+    }
+    
+    public void setTopics(String topics) {
+        this.topics = topics;
+    }
+    
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+    
+    public void setIsAssigned(boolean isAssigned) {
+        this.isAssigned = isAssigned;
+    }
+    
+    public void setStudentLogbook(String studentLogbook) {
+        this.studentLogbook = studentLogbook;
+    }
+
+    public void setPassFailGrade(boolean passFailGrade) {
+        this.passFailGrade = passFailGrade;
+    }
+    
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+    
+    public void setSupervisor(Professor supervisor) {
+        this.supervisor = supervisor;
+    }
+    
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+    
+    public void setEvaluations(List<Evaluation> evaluations) {
+        this.evaluations = evaluations;
+    }
+    
+    public void setLogbookEntries(String logbookEntries) {
+    	this.logbookEntries = logbookEntries;
+    }
+    
+    public void setHoursCompleted(int hoursCompleted) {
+    	this.hoursCompleted = hoursCompleted;
+    }
+    
+    private void setWeeklyReport(String weeklyReport) {
+    	return;
+    }
+    
+    private void setAchievements(String achievements) {
+    	return;
+    }
+    
+    private void setSkillsGained(String skillsGained) {
+    	return;
+    }
+    
+}   

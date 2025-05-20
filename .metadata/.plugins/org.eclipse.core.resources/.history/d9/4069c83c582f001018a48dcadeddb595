@@ -1,0 +1,11 @@
+package com.myy803.traineeship_app.domainmodel;
+
+//different kinds of users -> different roles
+public enum Role {
+	Student,
+	Company,
+	Professor,
+	CommitteeMember, 
+	ADMIN,
+	USER
+}

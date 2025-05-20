@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+	<title>Student Logbook</title>
+</head>
+<body>
+    <div class="container">
+        <h2>My Traineeship Logbook</h2>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        
+        <form th:action="@{/student/save-logbook}" th:object="${position}" method="post">
+            <div class="form-group">
+                <label>Logbook Entries</label>
+                <textarea class="form-control" th:field="*{logbookEntries}" rows="10"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Hours Completed</label>
+                <input type="number" class="form-control" th:field="*{hoursCompleted}">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Logbook</button>
+            <a th:href="@{/student/dashboard}" class="btn btn-secondary">Back to Dashboard</a>
+        </form>
+    </div>
+</body>
+</html>

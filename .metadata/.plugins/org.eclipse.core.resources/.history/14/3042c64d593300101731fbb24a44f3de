@@ -1,0 +1,92 @@
+package com.myy803.traineeship_app.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import com.myy803.traineeship_app.domainmodel.Professor;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.ProfessorMapper;
+import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
+import com.myy803.traineeship_app.domainmodel.Evaluation;
+import com.myy803.traineeship_app.service.ProfessorService;
+
+@Controller
+@RequestMapping("/professor")
+public class ProfessorController {
+    
+    private final ProfessorService professorService;
+    private final ProfessorMapper professorMapper;
+    private final TraineeshipPositionMapper positionMapper;
+    
+    @Autowired
+    public ProfessorController(ProfessorService professorService,
+                             ProfessorMapper professorMapper,
+                             TraineeshipPositionMapper positionMapper) {
+        this.professorService = professorService;
+        this.professorMapper = professorMapper;
+        this.positionMapper = positionMapper;
+    }
+    
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        return professorService.getProfessorDashboard();
+    }
+
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+        return professorService.retrieveProfile(model);
+    }
+
+    @PostMapping("/profile")
+    public String saveProfile(@ModelAttribute("professor") Professor professor, Model model) {
+        return professorService.saveProfile(professor, model);
+    }
+    
+    @GetMapping("/assignees")
+    public String listAssignedTraineeships(Model model) {
+        return professorService.listAssigneeTraineeships(model);
+    }
+    
+    @GetMapping("/positions")
+    public String getSupervisedPositions(Authentication authentication, Model model) {
+        try {
+            // Eagerly fetch professor with positions
+            Professor professor = professorMapper.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Professor not found"));
+            
+            // Force initialization if needed
+            if (professor.getSupervisedPositions() != null) {
+                professor.getSupervisedPositions().size(); // Force load
+            }
+            
+            // Alternative query if above doesn't work
+            List<TraineeshipPosition> positions = positionMapper.findBySupervisorUsername(authentication.getName());
+            
+            model.addAttribute("positions", positions);
+            model.addAttribute("professorName", professor.getProfessorName());
+            
+            return "professor/positions";
+            
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error loading positions: " + e.getMessage());
+            return "professor/positions";
+        }
+    }
+    
+    @GetMapping("/assignees/{positionId}/evaluate")
+    public String showEvaluationForm(@PathVariable Integer positionId, Model model) {
+        return professorService.evaluateAssignedTraineeship(positionId, model);
+    }
+
+    @PostMapping("/assignees/{positionId}/evaluate")
+    public String saveEvaluation(@PathVariable Integer positionId, 
+                               @ModelAttribute Evaluation evaluation, 
+                               Model model) {
+        return professorService.saveEvaluation(positionId, evaluation, model);
+    }
+}

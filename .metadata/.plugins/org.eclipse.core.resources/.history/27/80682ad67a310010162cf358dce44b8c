@@ -1,0 +1,85 @@
+package com.myy803.traineeship_app.service;
+
+import com.myy803.traineeship_app.domainmodel.Professor;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.ProfessorMapper;
+import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+public class AssignmentBasedOnInterests implements SupervisorAssignmentStrategy {
+    private final TraineeshipPositionMapper positionMapper;
+    private final ProfessorMapper professorMapper;
+
+    public AssignmentBasedOnInterests(TraineeshipPositionMapper positionMapper, 
+                                    ProfessorMapper professorMapper) {
+        this.positionMapper = positionMapper;
+        this.professorMapper = professorMapper;
+    }
+
+    @Override
+    public void assign(Integer positionId) {
+        TraineeshipPosition position = positionMapper.findById(positionId)
+            .orElseThrow(() -> new IllegalArgumentException("Position not found"));
+        
+        if (position.getIsAssigned()) {
+            throw new IllegalStateException("Position is already assigned");
+        }
+
+        List<Professor> professors = professorMapper.findAll();
+        
+        Professor bestMatch = null;
+        int maxMatches = -1;
+        
+        List<String> positionKeywords = combinePositionKeywords(position);
+        
+        for (Professor professor : professors) {
+            int matches = countMatchingKeywords(professor.getInterests(), positionKeywords);
+            
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                bestMatch = professor;
+            }
+        }
+        
+        if (bestMatch == null) {
+            throw new IllegalStateException("No professors available");
+        }
+        
+        position.setSupervisor(bestMatch);
+        positionMapper.save(position);
+    }
+
+    private List<String> combinePositionKeywords(TraineeshipPosition position) {
+        String combined = (position.getTopics() != null ? position.getTopics() : "") + " " + 
+                         (position.getSkills() != null ? position.getSkills() : "");
+        
+        return List.of(combined.toLowerCase().split(",\\s*"))
+                  .stream()
+                  .map(String::trim)
+                  .filter(s -> !s.isEmpty())
+                  .collect(Collectors.toList());
+    }
+
+    private int countMatchingKeywords(String string, List<String> positionKeywords) {
+        if (string == null || string.isEmpty() || 
+            positionKeywords == null || positionKeywords.isEmpty()) {
+            return 0;
+        }
+        
+        int matches = 0;
+        for (String interest : string) {
+            String lowerInterest = interest.toLowerCase().trim();
+            for (String keyword : positionKeywords) {
+                if (lowerInterest.equals(keyword)) {
+                    matches++;
+                    break; // Count each interest only once per keyword
+                }
+            }
+        }
+        return matches;
+    }
+}

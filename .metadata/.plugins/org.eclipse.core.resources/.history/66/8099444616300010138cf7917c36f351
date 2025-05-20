@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluation Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3>Evaluation Form</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="'Traineeship: ' + ${position.title}"></h5>
+                        <p class="card-text" th:text="'Student: ' + ${position.student?.name}"></p>
+                        
+                        <form th:action="@{/professor/assignees/{id}/evaluate(id=${position.id})}" 
+                              th:object="${evaluation}" method="post">
+                            
+                            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                            
+                            <fieldset class="mb-4">
+                                <legend>Student Evaluation</legend>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Motivation (1-5)</label>
+                                    <div class="btn-group" role="group">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="btn-check" th:id="'motivation'+${i}" 
+                                                   th:field="*{studentMotivation}" th:value="${i}">
+                                            <label class="btn btn-outline-primary" th:for="'motivation'+${i}" 
+                                                   th:text="${i}"></label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Effectiveness (1-5)</label>
+                                    <div class="btn-group" role="group">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="btn-check" th:id="'effectiveness'+${i}" 
+                                                   th:field="*{studentEffectiveness}" th:value="${i}">
+                                            <label class="btn btn-outline-primary" th:for="'effectiveness'+${i}" 
+                                                   th:text="${i}"></label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Efficiency (1-5)</label>
+                                    <div class="btn-group" role="group">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="btn-check" th:id="'efficiency'+${i}" 
+                                                   th:field="*{studentEfficiency}" th:value="${i}">
+                                            <label class="btn btn-outline-primary" th:for="'efficiency'+${i}" 
+                                                   th:text="${i}"></label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <fieldset class="mb-4">
+                                <legend>Company Evaluation</legend>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Facilities (1-5)</label>
+                                    <div class="btn-group" role="group">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="btn-check" th:id="'facilities'+${i}" 
+                                                   th:field="*{companyFacilities}" th:value="${i}">
+                                            <label class="btn btn-outline-primary" th:for="'facilities'+${i}" 
+                                                   th:text="${i}"></label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Guidance (1-5)</label>
+                                    <div class="btn-group" role="group">
+                                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="btn-check" th:id="'guidance'+${i}" 
+                                                   th:field="*{companyGuidance}" th:value="${i}">
+                                            <label class="btn btn-outline-primary" th:for="'guidance'+${i}" 
+                                                   th:text="${i}"></label>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <div class="mb-3">
+                                <label for="comments" class="form-label">Additional Comments</label>
+                                <textarea class="form-control" id="comments" rows="3" th:field="*{comments}"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Submit Evaluation
+                            </button>
+                            <a th:href="@{/professor/assignees}" class="btn btn-secondary ms-2">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

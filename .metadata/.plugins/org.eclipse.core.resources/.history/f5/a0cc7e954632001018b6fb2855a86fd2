@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Assignment Successful</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4 text-center">
+    <h2>Assignment Successful</h2>
+    <p>
+        <strong th:text="${student.name}"></strong> has been successfully assigned to 
+        <strong th:text="${position.title}"></strong> at 
+        <strong th:text="${position.company.name}"></strong>.
+    </p>
+    <a th:href="@{/committee/dashboard}" class="btn btn-primary mt-3">Back to Dashboard</a>
+</div>
+</body>
+</html>

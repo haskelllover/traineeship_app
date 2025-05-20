@@ -1,0 +1,64 @@
+package com.myy803.traineeship_app.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.myy803.traineeship_app.dao.UserDAO;
+import com.myy803.traineeship_app.domainmodel.User;
+
+
+@Service
+public class UserServiceImpl implements UserService, UserDetailsService {
+
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	@Autowired
+	private UserDAO userDAO;
+	
+	@Override
+	public void saveUser(User user) {
+		String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        userDAO.save(user);	
+    }
+
+	@Override
+	public boolean isUserPresent(User user) {
+		Optional<User> storedUser = userDAO.findByUsername(user.getUsername());
+		return storedUser.isPresent();
+	}
+
+	// Method defined in Spring Security UserDetailsService interface
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	    User user = userRepository.findByUsername(username)
+	        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+	    
+	    // Handle role case conversion
+	    String roleValue = user.getRole().toString(); // Get stored value
+	    try {
+	        Role role = Role.valueOf(roleValue); // Try exact match
+	    } catch (IllegalArgumentException e) {
+	        // Try case-insensitive match
+	        for (Role r : Role.values()) {
+	            if (r.name().equalsIgnoreCase(roleValue)) {
+	                user.setRole(r); // Update to correct case
+	                break;
+	            }
+	        }
+	    }
+	    
+	    return new org.springframework.security.core.userdetails.User(
+	        user.getUsername(), 
+	        user.getPassword(), 
+	        Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+	    );
+	}
+}

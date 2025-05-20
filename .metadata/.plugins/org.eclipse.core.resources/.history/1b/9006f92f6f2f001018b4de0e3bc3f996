@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Add your head content -->
+</head>
+<body>
+    <div class="container">
+        <h2>My Profile</h2>
+        <form th:action="@{/student/save-profile}" th:object="${student}" method="post">
+            <input type="hidden" th:field="*{username}"/>
+            
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" class="form-control" th:field="*{studentName}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>University ID</label>
+                <input type="text" class="form-control" th:field="*{AM}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Interests (comma separated)</label>
+                <input type="text" class="form-control" th:field="*{interests}">
+            </div>
+            
+            <div class="form-group">
+                <label>Skills (comma separated)</label>
+                <input type="text" class="form-control" th:field="*{skills}">
+            </div>
+            
+            <div class="form-group">
+                <label>Preferred Location</label>
+                <input type="text" class="form-control" th:field="*{preferredLocation}">
+            </div>
+            
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" th:field="*{lookingForTraineeship}">
+                <label class="form-check-label">Looking for Traineeship</label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Positions</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>    
+    <div class="container mt-5">
+        <h1 class="mb-4">Available Positions for <span th:text="${studentUsername}"></span></h1>
+        <p class="mb-4">Search Strategy: <span th:text="${strategy}"></span></p>
+        
+        <div th:if="${positions.empty}" class="alert alert-info">
+            No available positions found matching the criteria.
+        </div>
+        
+        <table th:unless="${positions.empty}" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Company</th>
+                    <th>Position</th>
+                    <th>Location</th>
+                    <th>Required Skills</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="position : ${positions}">
+                    <td th:text="${position.id}"></td>
+                    <td th:text="${position.company.companyName}"></td>
+                    <td th:text="${position.title}"></td>
+                    <td th:text="${position.companyLocation}"></td>
+                    <td th:text="${position.skills}"></td>
+                    <td>
+                        <form th:action="@{/committee/assign-position}" method="post">
+                            <input type="hidden" name="positionId" th:value="${position.id}">
+                            <input type="hidden" name="studentUsername" th:value="${studentUsername}">
+                            <button type="submit" class="btn btn-success btn-sm">Assign</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <a th:href="@{/committee/applications}" class="btn btn-secondary">Back to Applications</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

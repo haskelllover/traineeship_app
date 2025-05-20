@@ -1,0 +1,11 @@
+package com.myy803.traineeship_app.dao;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.myy803.traineeship_app.domainmodel.Professor;
+
+
+public interface ProfessorDAO extends JpaRepository<Professor, Integer>{
+	
+}

@@ -1,0 +1,95 @@
+package com.myy803.traineeship_app.controller;
+
+import com.myy803.traineeship_app.domainmodel.Company;
+import com.myy803.traineeship_app.domainmodel.Evaluation;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
+import com.myy803.traineeship_app.service.CompanyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping("/company")
+public class CompanyController {
+
+    private final CompanyService companyService;
+	TraineeshipPositionMapper positionMapper;
+
+    @Autowired
+    public CompanyController(CompanyService companyService) {
+        this.companyService = companyService;
+    }
+
+    @GetMapping("/dashboard")
+    public String showDashboard() {
+        return companyService.getCompanyDashboard();
+    }
+
+    @GetMapping("/profile")
+    public String showProfile(Model model) {
+        return companyService.retrieveProfile(model);
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@ModelAttribute Company company, Model model) {
+        return companyService.saveProfile(company, model);
+    }
+
+    @GetMapping("/positions")
+    public String listAvailablePositions(Model model) {
+        return companyService.listAvailablePosition(model);
+    }
+
+    @GetMapping("/positions/new")
+    public String showPositionForm(Model model) {
+        return companyService.showPositionForm(model);
+    }
+
+    @PostMapping("/positions")
+    public String savePosition(@ModelAttribute("position") TraineeshipPosition position, 
+                             Model model, 
+                             Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            return companyService.savePosition(position, model, username);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Failed to save position: " + e.getMessage());
+            return "company/position-form";
+        }
+    }
+
+    @GetMapping("/positions/delete/{id}")
+    public String deletePosition(@PathVariable Integer id, Model model) {
+        return companyService.deletePosition(id, model);
+    }
+
+    @GetMapping("/assignees")
+    public String listAssignedPositions(Model model) {
+        return companyService.listAssigneePostHours(model);
+    }
+
+    @GetMapping("/assignees/evaluate/{positionId}")
+    public String showEvaluationForm(@PathVariable Integer positionId, Model model) {
+        try {
+            TraineeshipPosition position = positionMapper.findById(positionId)
+                .orElseThrow(() -> new IllegalArgumentException("Position not found"));
+            
+            model.addAttribute("position", position);
+            model.addAttribute("evaluation", new Evaluation());
+            return "company/evaluation-form";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "redirect:/company/assignees";
+        }
+    }
+
+    @PostMapping("/assignees/evaluate/{positionId}")
+    public String saveEvaluation(@PathVariable Integer positionId, 
+                                @ModelAttribute Evaluation evaluation, 
+                                Model model) {
+        return companyService.saveEvaluation(positionId, evaluation, model);
+    }
+}

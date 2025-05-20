@@ -1,0 +1,73 @@
+package com.myy803.traineeship_app.controller;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import com.myy803.traineeship_app.domainmodel.Professor;
+import com.myy803.traineeship_app.mapper.ProfessorMapper;
+import com.myy803.traineeship_app.domainmodel.Evaluation;
+import com.myy803.traineeship_app.service.ProfessorService;
+
+@Controller
+@RequestMapping("/professor")
+public class ProfessorController {
+    
+    private final ProfessorService professorService;
+    
+    @Autowired
+    public ProfessorController(ProfessorService professorService) {
+        this.professorService = professorService;
+    }
+    
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        return professorService.getProfessorDashboard();
+    }
+
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+        return professorService.retrieveProfile(model);
+    }
+
+    @PostMapping("/profile")
+    public String saveProfile(@ModelAttribute("professor") Professor professor, Model model) {
+        return professorService.saveProfile(professor, model);
+    }
+    
+    @GetMapping("/professor/positions")
+    public String getSupervisedPositions(Authentication authentication, Model model
+    ) {
+    	ProfessorMapper professorMapper;
+        String username = authentication.getUsername();
+        Professor professor = professorMapper.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Professor not found"));
+        
+        // Force initialization if using lazy loading
+        Hibernate.initialize(professor.getSupervisedPositions());
+        
+        model.addAttribute("professor", professor);
+        return "professor/supervised-positions";
+    }
+    @GetMapping("/assignees")
+    public String listAssignedTraineeships(Model model) {
+        return professorService.listAssigneeTraineeships(model);
+    }
+
+    @GetMapping("/assignees/{positionId}/evaluate")
+    public String showEvaluationForm(@PathVariable Integer positionId, Model model) {
+        return professorService.evaluateAssignedTraineeship(positionId, model);
+    }
+
+    @PostMapping("/assignees/{positionId}/evaluate")
+    public String saveEvaluation(@PathVariable Integer positionId, 
+                               @ModelAttribute Evaluation evaluation, 
+                               Model model) {
+        return professorService.saveEvaluation(positionId, evaluation, model);
+    }
+}

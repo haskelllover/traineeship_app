@@ -1,0 +1,60 @@
+// SearchBasedOnInterests.java
+package com.myy803.traineeship_app.service;
+
+import com.myy803.traineeship_app.domainmodel.Student;
+import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mappers.StudentMapper;
+import com.myy803.traineeship_app.mappers.TraineeshipPositionMapper;
+import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+public class SearchBasedOnInterests implements PositionsSearchStrategy {
+    private final StudentMapper studentMapper;
+    private final TraineeshipPositionMapper positionMapper;
+
+    public SearchBasedOnInterests(StudentMapper studentMapper,
+                                TraineeshipPositionMapper positionMapper) {
+        this.studentMapper = studentMapper;
+        this.positionMapper = positionMapper;
+    }
+
+    @Override
+    public List<TraineeshipPosition> search(String applicantUsername) {
+        Student student = studentMapper.findByUsername(applicantUsername)
+            .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        
+        if (student.getInterests() == null || student.getInterests().isEmpty()) {
+            throw new IllegalStateException("Student has no interests set");
+        }
+
+        // Get all available positions
+        List<TraineeshipPosition> allPositions = positionMapper.findByIsAssigned(false);
+        
+        return allPositions.stream()
+            .filter(position -> hasMatchingInterest(position, student.getInterests()))
+            .collect(Collectors.toList());
+    }
+
+    private boolean hasMatchingInterest(TraineeshipPosition position, String studentInterests) {
+        if (position.getTopics() == null && position.getSkills() == null) {
+            return false;
+        }
+        
+        String positionKeywords = (position.getTopics() != null ? position.getTopics() : "") + " " +
+                                (position.getSkills() != null ? position.getSkills() : "");
+        
+        String[] interests = studentInterests.toLowerCase().split(",\\s*");
+        String[] keywords = positionKeywords.toLowerCase().split(",\\s*");
+        
+        for (String interest : interests) {
+            for (String keyword : keywords) {
+                if (interest.trim().equals(keyword.trim())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}

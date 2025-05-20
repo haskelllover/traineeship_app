@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Add your head content -->
+</head>
+<body>
+    <div class="container">
+        <h2>Apply for Traineeship</h2>
+        <form th:action="@{/student/submit-application}" method="post">
+            <div class="alert alert-info">
+                By submitting this application, you confirm your profile is complete and accurate.
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <a th:href="@{/student/dashboard}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
