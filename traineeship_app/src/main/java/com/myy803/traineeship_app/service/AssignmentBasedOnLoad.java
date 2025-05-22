@@ -4,9 +4,9 @@ import com.myy803.traineeship_app.domainmodel.Professor;
 import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
 import com.myy803.traineeship_app.mapper.ProfessorMapper;
 import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
-import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
     @Override
     @Transactional
     public void assign(Integer positionId) {
+        // Refresh entities to ensure we're working with current database state
         TraineeshipPosition position = positionMapper.findById(positionId)
             .orElseThrow(() -> new IllegalArgumentException("Position not found"));
         
@@ -31,7 +32,31 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
             throw new IllegalStateException("Position already has a supervisor");
         }
 
+        // Load professors with their supervised positions
         List<Professor> professors = professorMapper.findAll();
+        
+        Professor leastBusy = findLeastBusyProfessor(professors);
+        
+        // Set both sides of the relationship
+        position.setSupervisor(leastBusy);
+        if (leastBusy.getSupervisedPositions() == null) {
+            leastBusy.setSupervisedPositions(new ArrayList<>());
+        }
+        leastBusy.getSupervisedPositions().add(position);
+        
+        // Explicitly save both entities
+        positionMapper.save(position);
+        professorMapper.save(leastBusy);
+        
+        // Force immediate flush to database
+        positionMapper.flush();
+        professorMapper.flush();
+    }
+
+    private Professor findLeastBusyProfessor(List<Professor> professors) {
+        if (professors.isEmpty()) {
+            throw new IllegalStateException("No professors available");
+        }
         
         Professor leastBusy = null;
         int minPositions = Integer.MAX_VALUE;
@@ -46,25 +71,6 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
             }
         }
         
-        if (leastBusy == null) {
-            throw new IllegalStateException("No professors available");
-        }
-        
-        // Initialize collections if null
-        if (leastBusy.getSupervisedPositions() == null) {
-            leastBusy.setSupervisedPositions(new ArrayList<>());
-        }
-        
-        // Set both sides of relationship
-        position.setSupervisor(leastBusy);
-        leastBusy.getSupervisedPositions().add(position);
-        
-        // Save both entities
-        positionMapper.save(position);
-        professorMapper.save(leastBusy);
-        
-        // Ensure immediate database update
-        positionMapper.flush();
-        professorMapper.flush();
+        return leastBusy;
     }
 }
