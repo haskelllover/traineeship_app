@@ -3821,3 +3821,18 @@
 2025-05-22 15:36:09,942 [Worker-39: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
 2025-05-22 15:36:09,949 [Worker-39: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
 2025-05-22 15:36:09,958 [Worker-39: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources
+2025-05-22 15:39:01,775 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-05-22 15:39:01,785 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
+2025-05-22 15:39:01,795 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources
+2025-05-22 15:39:10,937 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-05-22 15:39:10,942 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
+2025-05-22 15:39:10,951 [Worker-41: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources
+2025-05-22 15:39:16,953 [Worker-40: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-05-22 15:39:16,965 [Worker-40: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
+2025-05-22 15:39:16,978 [Worker-40: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources
+2025-05-22 16:19:09,739 [Worker-11: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-05-22 16:19:09,746 [Worker-11: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
+2025-05-22 16:19:09,755 [Worker-11: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources
+2025-05-22 16:19:14,239 [Worker-42: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-05-22 16:19:14,249 [Worker-42: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 30 resources from src\main\resources to target\classes
+2025-05-22 16:19:14,260 [Worker-42: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\User\Desktop\Traineeship_App\traineeship_app\src\test\resources

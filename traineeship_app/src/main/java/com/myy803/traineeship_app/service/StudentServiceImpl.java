@@ -74,15 +74,11 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentMapper.findByUsername(username)
             .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
-        // Initialize position if null
-        if (student.getAssignedTraineeship() == null) {
-            TraineeshipPosition position = new TraineeshipPosition();
-            position.setStudent(student);  // Critical: set the relationship
-            student.setAssignedTraineeship(position);
-            // Don't save here - let the saveLogbook handle persistence
+        // Only add position to model if it exists
+        if (student.getAssignedTraineeship() != null) {
+            model.addAttribute("position", student.getAssignedTraineeship());
         }
-
-        model.addAttribute("position", student.getAssignedTraineeship());
+        
         model.addAttribute("student", student);
         return "student/logbook";
     }
