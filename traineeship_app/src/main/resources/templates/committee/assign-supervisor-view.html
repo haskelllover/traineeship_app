@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Supervisor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .assignment-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .assignment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary">
+                <i class="bi bi-person-plus"></i> Assign Supervisor
+            </h2>
+            <a th:href="@{/committee/assignees}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Assignees
+            </a>
+        </div>
+
+        <!-- Position Information Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Traineeship Position Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Title:</strong> <span th:text="${position.title}"></span></p>
+                        <p><strong>Company:</strong> <span th:text="${position.companyName}"></span></p>
+                        <p><strong>Location:</strong> <span th:text="${position.companyLocation}"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Topics:</strong> <span th:text="${position.topics}"></span></p>
+                        <p><strong>Skills:</strong> <span th:text="${position.skills}"></span></p>
+                        <p><strong>Status:</strong> 
+                            <span th:if="${position.isAssigned}" class="badge bg-success">Assigned</span>
+                            <span th:unless="${position.isAssigned}" class="badge bg-warning text-dark">Unassigned</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignment Options -->
+        <h4 class="mb-3">Select Assignment Strategy:</h4>
+        <div class="row g-4">
+            <!-- Assign by Interests -->
+            <div class="col-md-6">
+                <form th:action="@{/committee/assign-supervisor}" method="post" class="h-100">
+                    <input type="hidden" name="positionId" th:value="${position.id}">
+                    <input type="hidden" name="strategy" value="interests">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    
+                    <div class="card h-100 assignment-card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-heart-fill"></i> By Research Interests
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                Match with professors whose research interests align with the position topics:
+                                <strong th:text="${position.topics}"></strong>
+                            </p>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Assign by Interests
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Assign by Workload -->
+            <div class="col-md-6">
+                <form th:action="@{/committee/assign-supervisor}" method="post" class="h-100">
+                    <input type="hidden" name="positionId" th:value="${position.id}">
+                    <input type="hidden" name="strategy" value="load">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    
+                    <div class="card h-100 assignment-card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <i class="bi bi-speedometer2"></i> By Current Workload
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                Assign to the professor with the fewest currently supervised traineeships
+                            </p>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-check-circle"></i> Assign by Workload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div th:if="${successMessage}" class="alert alert-success mt-4" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger mt-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Debug form submission
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                console.log('Submitting form with strategy:', 
+                    this.querySelector('input[name="strategy"]').value);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -26,7 +26,7 @@ public class Professor {
     private String interests;
 
 	
-    @OneToMany(mappedBy = "supervisor", fetch = FetchType.EAGER) 
+    @OneToMany(mappedBy = "supervisor", cascade = CascadeType.ALL)
     private List<TraineeshipPosition> supervisedPositions;
 
 	//getters

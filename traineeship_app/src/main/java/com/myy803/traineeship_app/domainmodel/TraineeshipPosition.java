@@ -2,6 +2,7 @@ package com.myy803.traineeship_app.domainmodel;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,7 +44,7 @@ public class TraineeshipPosition {
     @JoinColumn(name = "student_id")
     private Student student;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // EAGER loading for supervisor
     @JoinColumn(name = "supervisor_id")
     private Professor supervisor;
     
@@ -52,7 +53,7 @@ public class TraineeshipPosition {
     private Company company;
     
     @OneToMany(mappedBy = "traineeshipPosition") 
-    private List<Evaluation> evaluations;
+    private List<Evaluation> evaluations = new ArrayList<>();
     
     @Column(name = "logbook_entries", columnDefinition = "TEXT")
     private String logbookEntries;
@@ -212,7 +213,11 @@ public class TraineeshipPosition {
     }
     
     public void setSupervisor(Professor supervisor) {
-        this.supervisor = supervisor;
+    	this.supervisor = supervisor;
+        if (supervisor != null && supervisor.getSupervisedPositions() != null 
+                && !supervisor.getSupervisedPositions().contains(this)) {
+            supervisor.getSupervisedPositions().add(this);
+        }
     }
     
     public void setCompany(Company company) {

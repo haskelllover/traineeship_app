@@ -1,7 +1,9 @@
 package com.myy803.traineeship_app.service;
 
+import com.myy803.traineeship_app.domainmodel.Professor;
 import com.myy803.traineeship_app.domainmodel.Student;
 import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.ProfessorMapper;
 import com.myy803.traineeship_app.mapper.StudentMapper;
 import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
 
@@ -10,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,16 +24,18 @@ public class CommitteeServiceImpl implements CommitteeService {
     private final PositionsSearchFactory positionsSearchFactory;
     private final SupervisorAssignmentFactory supervisorAssignmentFactory;
     private final StudentMapper studentMapper;
+    private final ProfessorMapper professorMapper;
     private final TraineeshipPositionMapper positionMapper;
 
     @Autowired
     public CommitteeServiceImpl(PositionsSearchFactory positionsSearchFactory,
                               SupervisorAssignmentFactory supervisorAssignmentFactory,
-                              StudentMapper studentMapper,
+                              StudentMapper studentMapper, ProfessorMapper professorMapper,
                               TraineeshipPositionMapper positionMapper) {
         this.positionsSearchFactory = positionsSearchFactory;
         this.supervisorAssignmentFactory = supervisorAssignmentFactory;
         this.studentMapper = studentMapper;
+        this.professorMapper = professorMapper;
         this.positionMapper = positionMapper;
     }
 
@@ -93,7 +98,6 @@ public class CommitteeServiceImpl implements CommitteeService {
         }
     }
 
-    @Override
     public String assignSupervisor(Integer positionId, String strategy, Model model) {
         try {
             supervisorAssignmentFactory.create(strategy).assign(positionId);
@@ -104,14 +108,7 @@ public class CommitteeServiceImpl implements CommitteeService {
             return "committee/assignees";
         }
     }
-
-    @Override
-    public String listAssigneeTraineeships(Model model) {
-        List<TraineeshipPosition> positions = positionMapper.findByIsAssigned(true);
-        model.addAttribute("positions", positions);
-        return "committee/assignees";
-    }
-
+    
     @Override
     public String completeAssignedTraineeships(Integer positionId, Model model) {
         try {
@@ -141,6 +138,35 @@ public class CommitteeServiceImpl implements CommitteeService {
             .mapToDouble(e -> (e.getStudentMotivation() + e.getStudentEfficiency() + e.getStudentEffectiveness()) / 3.0)
             .average()
             .orElse(0.0);
+    }
+
+    @Override
+    public String listAssigneeTraineeships(Model model) {
+        // 1. Fetch positions with supervisor and student relationships loaded
+        List<TraineeshipPosition> positions = positionMapper.findByIsAssigned(true);
+        
+        // 2. Verify data integrity
+        positions.forEach(position -> {
+            if (position.getSupervisor() != null && position.getSupervisor().getProfessorName() == null) {
+                // Handle cases where supervisor exists but name isn't loaded
+                Professor supervisor = professorMapper.findById(position.getSupervisor().getId())
+                    .orElseThrow(() -> new IllegalStateException(
+                        "Supervisor not found for position ID: " + position.getId()));
+                position.setSupervisor(supervisor);
+            }
+        });
+        
+        // 3. Add attributes to model
+        model.addAttribute("positions", positions);
+        
+        // 4. Debug output (optional)
+        System.out.println("Loaded positions with supervisors:");
+        positions.forEach(p -> System.out.println(
+            "Position ID: " + p.getId() + 
+            " | Supervisor: " + (p.getSupervisor() != null ? 
+                p.getSupervisor().getProfessorName() : "null")));
+        
+        return "committee/assignees";
     }
 
 }

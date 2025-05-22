@@ -1,5 +1,7 @@
 package com.myy803.traineeship_app.controller;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +9,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.myy803.traineeship_app.domainmodel.Professor;
 import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.EvaluationMapper;
 import com.myy803.traineeship_app.mapper.ProfessorMapper;
 import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
 import com.myy803.traineeship_app.domainmodel.Evaluation;
@@ -19,17 +23,20 @@ import com.myy803.traineeship_app.service.ProfessorService;
 @RequestMapping("/professor")
 public class ProfessorController {
     
-    private final ProfessorService professorService;
+    private final ProfessorService professorService; 
     private final ProfessorMapper professorMapper;
     private final TraineeshipPositionMapper positionMapper;
+    private final EvaluationMapper evaluationMapper;
     
     @Autowired
     public ProfessorController(ProfessorService professorService,
                              ProfessorMapper professorMapper,
-                             TraineeshipPositionMapper positionMapper) {
+                             TraineeshipPositionMapper positionMapper, 
+                             EvaluationMapper evaluationMapper) {
         this.professorService = professorService;
         this.professorMapper = professorMapper;
         this.positionMapper = positionMapper;
+        this.evaluationMapper = evaluationMapper;
     }
     
     @GetMapping("/dashboard")
@@ -48,9 +55,11 @@ public class ProfessorController {
     }
     
     @GetMapping("/assignees")
-    public String listAssignedTraineeships(Model model) {
-        return professorService.listAssigneeTraineeships(model);
-    }
+    public String listAssignedTraineeships(Model model, Authentication authentication) {
+    	String professorUsername = authentication.getName();
+        model.addAttribute("positions", positionMapper.findBySupervisorUsername(professorUsername));
+        return "professor/assignees";
+    }    
     
     @GetMapping("/positions")
     public String getSupervisedPositions(
@@ -77,15 +86,60 @@ public class ProfessorController {
         }
     }
      
-    @GetMapping("/assignees/{positionId}/evaluate")
-    public String showEvaluationForm(@PathVariable Integer positionId, Model model) {
-        return professorService.evaluateAssignedTraineeship(positionId, model);
+    @GetMapping("positions/{id}/evaluate")
+    public String showEvaluationForm(@PathVariable Integer id, Model model) {
+        TraineeshipPosition position = positionMapper.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
+        
+        // Check if evaluation already exists
+        if (evaluationMapper.existsById(id)) {
+            model.addAttribute("errorMessage", "This position has already been evaluated");
+            return "redirect:/professor/positions/" + id + "/details";
+        }
+        
+        model.addAttribute("position", position);
+        return "professor/evaluation-form";
     }
 
-    @PostMapping("/assignees/{positionId}/evaluate")
-    public String saveEvaluation(@PathVariable Integer positionId, 
-                               @ModelAttribute Evaluation evaluation, 
-                               Model model) {
-        return professorService.saveEvaluation(positionId, evaluation, model);
+    @PostMapping("positions/{id}/submit-evaluation")
+    public String submitEvaluation(
+            @PathVariable Integer id,
+            @RequestParam Integer studentMotivation,
+            @RequestParam Integer studentEffectiveness,
+            @RequestParam Integer studentEfficiency,
+            @RequestParam Integer companyFacilities,
+            @RequestParam Integer companyGuidance,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            Evaluation evaluation = new Evaluation();
+            evaluation.setStudentMotivation(studentMotivation);
+            evaluation.setStudentEffectiveness(studentEffectiveness);
+            evaluation.setStudentEfficiency(studentEfficiency);
+            evaluation.setCompanyFacilities(companyFacilities);
+            evaluation.setCompanyGuidance(companyGuidance);
+
+            TraineeshipPosition position = positionMapper.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
+            evaluation.setTraineeshipPosition(position);
+                       
+            evaluationMapper.save(evaluation);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Evaluation submitted successfully");
+            return "redirect:/professor/positions/" + id + "/details";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error submitting evaluation: " + e.getMessage());
+            return "redirect:/professor/positions/" + id + "/evaluate";
+        }
+    }
+
+
+    @GetMapping("positions/{id}/details")
+    public String viewPositionDetails(@PathVariable Integer id, Model model) {
+        TraineeshipPosition position = positionMapper.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
+        
+        model.addAttribute("position", position);
+        return "professor/position-details"; // Create this view template
     }
 }

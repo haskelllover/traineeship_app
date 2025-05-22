@@ -4,23 +4,24 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="true"/>
 		<list key="findhistory">
+			<item value="By"/>
+			<item value="evaluate"/>
+			<item value="evaluat"/>
+			<item value="position.getEvaluations().add(evaluation);"/>
+			<item value="comments"/>
+			<item value="pass"/>
+			<item value="actions"/>
+			<item value="Repository"/>
+			<item value="status"/>
 			<item value="efficiencyRating"/>
 			<item value="effectivenessRating"/>
 			<item value="motivationRating"/>
 			<item value="title"/>
 			<item value="applicant"/>
 			<item value="footer"/>
-			<item value="first"/>
-			<item value="frag"/>
-			<item value="private"/>
-			<item value="application"/>
-			<item value="student"/>
-			<item value="company"/>
-			<item value="applicsyion"/>
-			<item value="apply"/>
-			<item value="fragments"/>
 		</list>
 		<list key="replacehistory">
+			<item value="Mapper"/>
 			<item value="studentEfficiency"/>
 			<item value="studentEffectiveness"/>
 			<item value="studentMotivation"/>
@@ -35,7 +36,6 @@
 			<item value="interests"/>
 			<item value="professor"/>
 			<item value="Student"/>
-			<item value="Student&apos;"/>
 		</list>
 	</section>
 </section>

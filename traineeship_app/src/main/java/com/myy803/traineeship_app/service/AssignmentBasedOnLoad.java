@@ -6,6 +6,8 @@ import com.myy803.traineeship_app.mapper.ProfessorMapper;
 import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
 import org.springframework.stereotype.Component;
 
+import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -20,6 +22,7 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
     }
 
     @Override
+    @Transactional
     public void assign(Integer positionId) {
         TraineeshipPosition position = positionMapper.findById(positionId)
             .orElseThrow(() -> new IllegalArgumentException("Position not found"));
@@ -47,7 +50,21 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
             throw new IllegalStateException("No professors available");
         }
         
+        // Initialize collections if null
+        if (leastBusy.getSupervisedPositions() == null) {
+            leastBusy.setSupervisedPositions(new ArrayList<>());
+        }
+        
+        // Set both sides of relationship
         position.setSupervisor(leastBusy);
+        leastBusy.getSupervisedPositions().add(position);
+        
+        // Save both entities
         positionMapper.save(position);
+        professorMapper.save(leastBusy);
+        
+        // Ensure immediate database update
+        positionMapper.flush();
+        professorMapper.flush();
     }
 }

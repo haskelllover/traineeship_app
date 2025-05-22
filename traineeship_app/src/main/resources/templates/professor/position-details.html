@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Position Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Back button -->
+        <a th:href="@{/professor/assignees}" class="btn btn-outline-secondary mb-3">
+            Back to List
+        </a>
+        
+        <!-- Success/Error messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>Position Details</h3>
+            </div>
+            <div class="card-body">
+                <!-- Position details content -->
+                <h4 th:text="${position.title}"></h4>
+                <p>Company: <span th:text="${position.company.companyName}"></span></p>
+                <p>Student: <span th:text="${position.student.studentName}"></span></p>
+                
+                <!-- Evaluation display -->
+                <div th:if="${position.evaluations != null and !position.evaluations.isEmpty()}">
+                    <h5 class="mt-4">Evaluation</h5>
+                    <p>Motivation: <span th:text="${position.evaluations[0].studentMotivation}"></span>/5</p>
+                    <p>Effectiveness: <span th:text="${position.evaluations[0].studentEffectiveness}"></span>/5</p>
+                    <p>Efficiency: <span th:text="${position.evaluations[0].studentEfficiency}"></span>/5</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

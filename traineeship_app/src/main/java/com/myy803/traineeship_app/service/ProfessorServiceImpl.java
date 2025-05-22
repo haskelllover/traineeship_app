@@ -5,6 +5,7 @@ import com.myy803.traineeship_app.domainmodel.EvaluationType;
 import com.myy803.traineeship_app.domainmodel.Professor;
 import com.myy803.traineeship_app.domainmodel.Student;
 import com.myy803.traineeship_app.domainmodel.TraineeshipPosition;
+import com.myy803.traineeship_app.mapper.EvaluationMapper;
 import com.myy803.traineeship_app.mapper.ProfessorMapper;
 import com.myy803.traineeship_app.mapper.TraineeshipPositionMapper;
 
@@ -23,12 +24,15 @@ public class ProfessorServiceImpl implements ProfessorService {
     
     private final ProfessorMapper professorMapper;
     private final TraineeshipPositionMapper positionMapper;
+    private final EvaluationMapper evaluationMapper;
 
     @Autowired
     public ProfessorServiceImpl(ProfessorMapper professorMapper, 
-                              TraineeshipPositionMapper positionMapper) {
+                              TraineeshipPositionMapper positionMapper,
+                              EvaluationMapper evaluationMapper) {
         this.professorMapper = professorMapper;
         this.positionMapper = positionMapper;
+        this.evaluationMapper = evaluationMapper;
     }
 
     @Override
@@ -75,10 +79,17 @@ public class ProfessorServiceImpl implements ProfessorService {
 
     @Override
     public String listAssigneeTraineeships(Model model) {
-        String username = getCurrentUsername();
-        List<TraineeshipPosition> positions = positionMapper.findBySupervisorUsername(username);
+        List<TraineeshipPosition> positions = positionMapper.findByIsAssigned(true);
+        
+        // Explicitly load evaluations if they're not being loaded by default
+        positions.forEach(position -> {
+            if (position.getEvaluations() == null) {
+                position.setEvaluations(evaluationMapper.findByTraineeshipPositionId(position.getId()));
+            }
+        });
+        
         model.addAttribute("positions", positions);
-        return "professor/assignees";
+        return "committee/assignees";
     }
 
     @Override
@@ -109,9 +120,11 @@ public class ProfessorServiceImpl implements ProfessorService {
             TraineeshipPosition position = positionMapper.findById(positionId)
                 .orElseThrow(() -> new IllegalArgumentException("Position not found"));
             
+            evaluation.setEvaluationType(EvaluationType.PROFESSOR_EVALUATION);
+            evaluation.setTraineeshipPosition(position);
             position.getEvaluations().add(evaluation);
             positionMapper.save(position);
-            
+
             model.addAttribute("successMessage", "Evaluation saved successfully");
             return "redirect:/professor/assignees";
         } catch (Exception e) {

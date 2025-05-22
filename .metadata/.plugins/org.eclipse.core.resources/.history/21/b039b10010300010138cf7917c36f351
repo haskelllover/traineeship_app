@@ -1,6 +1,0 @@
-package com.myy803.traineeship_app.domainmodel;
-
-public enum EvaluationType {
-	CompanyEvaluation,
-	ProfessorEvaluation
-}

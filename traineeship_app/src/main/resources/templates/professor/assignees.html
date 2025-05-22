@@ -40,7 +40,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="position : ${positions}" th:class="${position.status == 'COMPLETED'} ? 'table-secondary' : ''">
+                            <tr th:each="position : ${positions}"  th:class="${position.isAssigned} ? 'table-secondary' : ''">
                                 <td>
                                     <span th:text="${position.student.studentName}"></span>
                                     <br>
@@ -53,27 +53,31 @@
                                     <span th:text="${#temporals.format(position.toDate, 'dd/MM/yyyy')}"></span>
                                 </td>
                                 <td>
-                                    <span th:switch="${position.status}" class="badge rounded-pill">
-                                        <span th:case="'ACTIVE'" class="bg-primary">Active</span>
-                                        <span th:case="'COMPLETED'" class="bg-success">Completed</span>
-                                        <span th:case="*" class="bg-warning">Pending</span>
-                                    </span>
+									<span th:if="${position.isAssigned}" class="badge bg-primary">Active</span>
+									<span th:unless="${position.isAssigned}" class="badge bg-warning">Pending</span>
                                 </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a th:href="@{/professor/positions/{id}/details(id=${position.id})}" 
-                                           class="btn btn-outline-primary"
-                                           title="View Details">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-                                        <a th:href="@{/professor/positions/{id}/evaluate(id=${position.id})}" 
-                                           class="btn btn-primary"
-                                           th:if="${position.status == 'ACTIVE'}"
-                                           title="Evaluate">
-                                            <i class="bi bi-clipboard-check"></i> Evaluate
-                                        </a>
-                                    </div>
-                                </td>
+								<td>
+								    <div class="btn-group btn-group-sm">
+								        <a th:href="@{/professor/positions/{id}/details(id=${position.id})}" 
+								           class="btn btn-outline-primary"
+								           title="View Details">
+								            <i class="bi bi-eye-fill"></i>
+								        </a>
+								        <span th:if="${position.isAssigned}">
+								            <a th:if="${position.evaluations == null or position.evaluations.empty}"
+								               th:href="@{/professor/positions/{id}/evaluate(id=${position.id})}" 
+								               class="btn btn-primary"
+								               title="Evaluate">
+								                <i class="bi bi-clipboard-check"></i> Evaluate
+								            </a>
+								            <span th:unless="${position.evaluations == null or position.evaluations.empty}">
+								                <button class="btn btn-secondary" disabled>
+								                    <i class="bi bi-check-circle-fill"></i> Already Evaluated
+								                </button>
+								            </span>
+								        </span>
+								    </div>
+								</td>
                             </tr>
                             <tr th:if="${positions.empty}">
                                 <td colspan="6" class="text-center text-muted py-4">

@@ -91,6 +91,10 @@ public class Evaluation {
         this.studentMotivation = studentMotivation;
     }
     
+	public void setStudentEffectiveness(Integer studentEffectiveness) {
+		this.studentEffectiveness = studentEffectiveness;
+	}
+    
     public void setStudentEfficiency(Integer studentEfficiency) {
         this.studentEfficiency = studentEfficiency;
     }
@@ -109,4 +113,5 @@ public class Evaluation {
     public void setTraineeshipPosition(TraineeshipPosition traineeshipPosition) { 
         this.traineeshipPosition = traineeshipPosition; 
     }
+
 }
