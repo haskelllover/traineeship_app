@@ -61,6 +61,10 @@ public class Professor {
 
 	
 	//setters
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -81,4 +85,5 @@ public class Professor {
     public void setSupervisedPositions(List<TraineeshipPosition> supervisedPositions) {
         this.supervisedPositions = supervisedPositions;
     }
+
 }

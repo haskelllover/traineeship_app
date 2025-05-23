@@ -34,7 +34,7 @@ public class StudentController {
         return studentService.retrieveProfile(model);
     }
 
-    @PostMapping("/save-profile")
+    @PostMapping("/profile")
     public String saveProfile(@ModelAttribute("student") Student student, Model model) {
         return studentService.saveProfile(student, model);
     }

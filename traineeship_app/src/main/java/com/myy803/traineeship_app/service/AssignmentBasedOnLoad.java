@@ -53,7 +53,7 @@ public class AssignmentBasedOnLoad implements SupervisorAssignmentStrategy {
         professorMapper.flush();
     }
 
-    private Professor findLeastBusyProfessor(List<Professor> professors) {
+    public Professor findLeastBusyProfessor(List<Professor> professors) {
         if (professors.isEmpty()) {
             throw new IllegalStateException("No professors available");
         }

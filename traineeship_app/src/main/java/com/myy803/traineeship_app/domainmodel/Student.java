@@ -113,6 +113,11 @@ public class Student {
 	}
 	
 	//setters
+	
+	public void setId(int id) {
+		this.id =id;
+	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -181,4 +186,5 @@ public class Student {
         skillsList.add(skill);
         setSkillsList(skillsList);
     }
+
 }

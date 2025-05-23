@@ -86,7 +86,7 @@ public class ProfessorController {
         }
     }
      
-    @GetMapping("positions/{id}/evaluate")
+    @GetMapping("/positions/{id}/evaluate")
     public String showEvaluationForm(@PathVariable Integer id, Model model) {
         TraineeshipPosition position = positionMapper.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
@@ -101,7 +101,7 @@ public class ProfessorController {
         return "professor/evaluation-form";
     }
 
-    @PostMapping("positions/{id}/submit-evaluation")
+    @PostMapping("/positions/{id}/submit-evaluation")
     public String submitEvaluation(
             @PathVariable Integer id,
             @RequestParam Integer studentMotivation,
@@ -134,7 +134,7 @@ public class ProfessorController {
     }
 
 
-    @GetMapping("positions/{id}/details")
+    @GetMapping("/positions/{id}/details")
     public String viewPositionDetails(@PathVariable Integer id, Model model) {
         TraineeshipPosition position = positionMapper.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));

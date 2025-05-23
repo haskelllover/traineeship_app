@@ -144,7 +144,7 @@ public class CommitteeServiceImpl implements CommitteeService {
         }
     }
 
-    private double calculateFinalGrade(TraineeshipPosition position) {
+    public double calculateFinalGrade(TraineeshipPosition position) {
         // Calculate weighted average if needed
         return position.getEvaluations().stream()
             .mapToDouble(e -> (e.getStudentMotivation() * 0.3 + 

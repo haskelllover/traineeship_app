@@ -59,7 +59,7 @@ public class AssignmentBasedOnInterests implements SupervisorAssignmentStrategy 
         professorMapper.flush();
     }
 
-    private Professor findBestMatch(TraineeshipPosition position, List<Professor> professors) {
+    public Professor findBestMatch(TraineeshipPosition position, List<Professor> professors) {
         if (professors.isEmpty()) {
             throw new IllegalStateException("No professors available for assignment");
         }
@@ -97,7 +97,7 @@ public class AssignmentBasedOnInterests implements SupervisorAssignmentStrategy 
         return bestMatch;
     }
 
-    private List<String> combinePositionKeywords(TraineeshipPosition position) {
+    public List<String> combinePositionKeywords(TraineeshipPosition position) {
         String combined = (position.getTopics() != null ? position.getTopics() : "") + "," + 
                          (position.getSkills() != null ? position.getSkills() : "");
         return Arrays.stream(combined.split(",\\s*"))
@@ -106,7 +106,7 @@ public class AssignmentBasedOnInterests implements SupervisorAssignmentStrategy 
                    .collect(Collectors.toList());
     }
 
-    private int countMatchingKeywords(List<String> professorInterests, List<String> positionKeywords) {
+    public int countMatchingKeywords(List<String> professorInterests, List<String> positionKeywords) {
         if (professorInterests == null || positionKeywords == null) return 0;
         
         return (int) professorInterests.stream()
