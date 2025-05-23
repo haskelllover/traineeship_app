@@ -110,13 +110,21 @@ public class CommitteeServiceImpl implements CommitteeService {
     }
     
     @Override
-    public String completeAssignedTraineeships(Integer positionId, Model model) {
+    public String completeAssignedTraineeships(Integer positionId, Model model, RedirectAttributes redirectAttributes) {
         try {
             TraineeshipPosition position = positionMapper.findById(positionId)
                 .orElseThrow(() -> new IllegalArgumentException("Position not found"));
             
+            // Validate evaluations exist
+            if (position.getEvaluations() == null || position.getEvaluations().isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Cannot complete - No evaluations exist for this position");
+                return "redirect:/committee/assignees";
+            }
+            
             double finalGrade = calculateFinalGrade(position);
-            position.setPassFailGrade(finalGrade >= 5.0);
+            boolean passed = finalGrade >= 2.5;
+            position.setPassFailGrade(passed);
             
             Student student = position.getStudent();
             student.setAssignedTraineeship(null);
@@ -125,19 +133,25 @@ public class CommitteeServiceImpl implements CommitteeService {
             positionMapper.save(position);
             studentMapper.save(student);
             
-            model.addAttribute("successMessage", "Traineeship completed successfully");
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Traineeship completed successfully. Result: " + (passed ? "PASS" : "FAIL") + 
+                " (Grade: " + String.format("%.1f", finalGrade) + ")");
             return "redirect:/committee/assignees";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error completing traineeship: " + e.getMessage());
-            return "committee/assignees";
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error completing traineeship: " + e.getMessage());
+            return "redirect:/committee/assignees";
         }
     }
 
     private double calculateFinalGrade(TraineeshipPosition position) {
+        // Calculate weighted average if needed
         return position.getEvaluations().stream()
-            .mapToDouble(e -> (e.getStudentMotivation() + e.getStudentEfficiency() + e.getStudentEffectiveness()) / 3.0)
+            .mapToDouble(e -> (e.getStudentMotivation() * 0.3 + 
+                              e.getStudentEfficiency() * 0.4 + 
+                              e.getStudentEffectiveness() * 0.3))
             .average()
-            .orElse(0.0);
+            .orElseThrow(() -> new IllegalStateException("No evaluations available"));
     }
 
     @Override

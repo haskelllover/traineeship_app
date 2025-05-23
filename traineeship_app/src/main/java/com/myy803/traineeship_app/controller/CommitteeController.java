@@ -103,7 +103,7 @@ public class CommitteeController {
     public String completeTraineeship(
             @RequestParam Integer positionId,
             RedirectAttributes redirectAttributes) {
-        String result = committeeService.completeAssignedTraineeships(positionId, redirectAttributes);
+        String result = committeeService.completeAssignedTraineeships(positionId, redirectAttributes, redirectAttributes);
         
         if (result.startsWith("redirect:")) {
             redirectAttributes.addFlashAttribute("successMessage", 

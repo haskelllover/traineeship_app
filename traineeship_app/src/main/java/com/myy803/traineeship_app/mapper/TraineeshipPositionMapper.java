@@ -19,6 +19,6 @@ public interface TraineeshipPositionMapper extends JpaRepository<TraineeshipPosi
     List<TraineeshipPosition> findByTopicsContainingOrSkillsContaining(String topic, String skill);
     List<TraineeshipPosition> findByCompanyUsernameAndIsAssigned(String username, Boolean isAssigned);
 	List<TraineeshipPosition> findBySupervisorUsernameAndIsAssigned(String username, Boolean isAssigned);
-	List<TraineeshipPosition> findByIsAssigned(boolean isAssigned);
+	List<TraineeshipPosition> findByIsAssigned(Boolean isAssigned);
 }
 
